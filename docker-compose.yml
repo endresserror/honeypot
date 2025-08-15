@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: vulnerability_scanner
+      POSTGRES_USER: scanner_user
+      POSTGRES_PASSWORD: scanner_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - scanner_network
+
+  data-server:
+    build:
+      context: ./data-server
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://scanner_user:scanner_password@postgres:5432/vulnerability_scanner
+      - FLASK_ENV=production
+      - SECRET_KEY=your-secret-key-here
+    ports:
+      - "5001:5000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./data-server/logs:/app/logs
+    networks:
+      - scanner_network
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5001
+    depends_on:
+      - data-server
+    networks:
+      - scanner_network
+
+  honeypot:
+    build:
+      context: ./honeypot
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./honeypot/logs:/app/logs
+    environment:
+      - DATA_SERVER_URL=http://data-server:5000
+    depends_on:
+      - data-server
+    networks:
+      - scanner_network
+
+volumes:
+  postgres_data:
+
+networks:
+  scanner_network:
+    driver: bridge

@@ -1,0 +1,66 @@
+# Honeypot Configuration
+
+# Flask web server settings
+flask:
+  host: "0.0.0.0"
+  port: 8080
+  debug: false
+  secret_key: "honeypot-secret-key-change-in-production"
+
+# Data Server connection (WSL localhost)
+data_server:
+  url: "http://127.0.0.1:5001"
+  timeout: 10
+  retry_attempts: 3
+  submission_interval: 10  # seconds
+
+# Dashboard settings
+dashboard:
+  enabled: true
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+
+# Logging configuration
+logging:
+  level: "INFO"
+  file: "logs/honeypot.log"
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+  console_output: true
+
+# Database settings
+database:
+  path: "logs/honeypot.db"
+  cleanup_days: 30  # Days to keep submitted logs
+
+# Vulnerability simulation
+simulation:
+  enable_vulnerabilities: true
+  enable_simulation: false  # Automated attack simulation
+  simulation_interval: 60   # seconds
+  
+  # Response patterns
+  sql_error_simulation: true
+  xss_reflection: true
+  lfi_simulation: true
+  
+# Security settings
+security:
+  log_request_bodies: true
+  max_request_size: 1048576  # 1MB
+  rate_limiting: false
+  
+# Honeypot behavior
+behavior:
+  # Delay responses to simulate processing
+  response_delay_min: 0.1
+  response_delay_max: 0.5
+  
+  # Error simulation
+  simulate_errors: true
+  error_rate: 0.1  # 10% of requests trigger errors
+  
+  # Information disclosure
+  reveal_server_info: true
+  expose_debug_info: true

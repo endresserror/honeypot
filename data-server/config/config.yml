@@ -1,0 +1,49 @@
+# MCP Server Configuration
+
+database:
+  url: "postgresql://scanner_user:scanner_password@localhost:5432/vulnerability_scanner"
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+
+flask:
+  secret_key: "your-secret-key-change-in-production"
+  debug: false
+  testing: false
+
+logging:
+  level: "INFO"
+  file: "logs/mcp-server.log"
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+
+signature_generation:
+  min_confidence_threshold: 0.5
+  max_signatures_per_attack: 5
+  analysis_batch_size: 100
+  
+  # Pattern extraction settings
+  payload_extraction:
+    min_length: 3
+    max_length: 500
+    common_attack_patterns:
+      - "' OR "
+      - "UNION SELECT"
+      - "<script>"
+      - "javascript:"
+      - "../"
+      - "/etc/passwd"
+
+  # Response analysis settings
+  baseline_comparison:
+    status_code_threshold: 50
+    content_length_threshold: 0.3  # 30% change
+    response_time_threshold: 2000  # milliseconds
+    
+security:
+  jwt_secret: "jwt-secret-change-in-production"
+  token_expiry: 3600  # seconds
+
+rate_limiting:
+  enabled: true
+  requests_per_minute: 100
